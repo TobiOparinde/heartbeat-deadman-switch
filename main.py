@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from database import create_table, save_monitor
+from database import create_table, save_monitor, get_monitors
 from pydantic import BaseModel, Field
 
 
@@ -25,3 +25,10 @@ def create_monitor(monitor: MonitorCreate):
         "interval_seconds": monitor.interval_seconds,
         "deadline": deadline
     }
+
+@app.get("/monitors")
+def list_monitors():
+
+    monitor_list = get_monitors()
+    
+    return monitor_list

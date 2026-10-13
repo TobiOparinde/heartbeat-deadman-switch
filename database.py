@@ -34,3 +34,19 @@ def save_monitor(interval_seconds):
     connection.close()
 
     return monitor_id, deadline
+
+def get_monitors():
+
+    connection = sqlite3.connect("heartbeat.db")
+    connection.row_factory = sqlite3.Row
+
+    monitors = connection.execute("SELECT * FROM monitors")
+    monitors = monitors.fetchall()
+
+    monitors = [dict(row) for row in monitors]
+
+    connection.close()
+
+    return monitors
+
+    
