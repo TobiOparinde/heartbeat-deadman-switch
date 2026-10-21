@@ -49,4 +49,57 @@ def get_monitors():
 
     return monitors
 
+def check_in(monitor_id):
+
+    connection = sqlite3.connect("heartbeat.db")
+
+    cursor = connection.execute(
+        "SELECT interval_seconds FROM monitors WHERE id = ?",
+        (monitor_id,)
+    )
+
+    monitor = cursor.fetchone()
+
+    if monitor is None:
+        connection.close()
+        return None
+
+    interval_seconds = monitor[0]
+
+    now = datetime.now(timezone.utc)
+    new_deadline = now + timedelta(seconds=interval_seconds)
+
+    connection.execute(
+        "UPDATE monitors SET deadline = ? WHERE id = ?",
+        (new_deadline.isoformat(), monitor_id)
+    )
+
+    connection.commit()
+    connection.close()
+
+    return new_deadline
+
+def get_overdue_monitors():
+    now = datetime.now(timezone.utc).isofformat()
+
+def get_overdue_monitors():
+
+    now = datetime.now(timezone.utc).isoformat()
+
+    connection = sqlite3.connect("heartbeat.db")
+    connection.row_factory = sqlite3.Row
+
+    cursor = connection.execute(
+        "SELECT * FROM monitors WHERE deadline <= ?",
+        (now,)
+    )
+
+    overdue = cursor.fetchall()
+    connection.close()
+
+    return [dict(row) for row in overdue]
+
+
+
+
     
