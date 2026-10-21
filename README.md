@@ -1,4 +1,4 @@
-# Heartbeat — A Dead Man's Switch
+# Heartbeat - A Dead Man's Switch
 
 A Python-based check-in monitoring system designed to detect missed deadlines and trigger automated alerts when expected check-ins don't occur.
 
@@ -6,10 +6,10 @@ Heartbeat explores backend engineering, API design, persistent data storage, and
 
 ## Tech Stack
 
-- **Python** — Core application logic
-- **FastAPI** — REST API development
-- **SQLite** — Persistent data storage
-- **Pydantic** — Request validation
+- **Python** - Core application logic
+- **FastAPI** - REST API development
+- **SQLite** - Persistent data storage
+- **Pydantic** - Request validation
 
 ## Features
 
