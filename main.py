@@ -1,5 +1,5 @@
-from fastapi import FastAPI
-from database import create_table, save_monitor, get_monitors
+from fastapi import FastAPI, HTTPException
+from database import create_table, save_monitor, get_monitors, check_in
 from pydantic import BaseModel, Field
 
 
@@ -32,3 +32,20 @@ def list_monitors():
     monitor_list = get_monitors()
     
     return monitor_list
+
+@app.post("/monitors/{monitor_id}/check-in")
+def check_in_monitor(monitor_id: int):
+
+    new_deadline = check_in(monitor_id)
+
+    if new_deadline is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Monitor not found"
+        )
+
+    return {
+        "id": monitor_id,
+        "message": "Check-in successful",
+        "new_deadline": new_deadline
+    }
