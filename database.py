@@ -1,15 +1,26 @@
 import sqlite3
 from datetime import datetime, timedelta, timezone
 
+DB_PATH = "heartbeat.db"
+
 
 def create_table():
-    connection = sqlite3.connect("heartbeat.db")
+    connection = sqlite3.connect(DB_PATH)
 
     connection.execute("""
         CREATE TABLE IF NOT EXISTS monitors (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             interval_seconds INTEGER NOT NULL,
             deadline TEXT NOT NULL
+        )
+    """)
+
+    connection.execute("""
+    CREATE TABLE IF NOT EXISTS alerts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        monitor_id INTEGER NOT NULL,
+        deadline TEXT NOT NULL,
+        UNIQUE(monitor_id, deadline)
         )
     """)
 
@@ -21,7 +32,7 @@ def save_monitor(interval_seconds):
     now = datetime.now(timezone.utc)
     deadline = now + timedelta(seconds=interval_seconds)
 
-    connection = sqlite3.connect("heartbeat.db")
+    connection = sqlite3.connect(DB_PATH)
 
     cursor = connection.execute(
         "INSERT INTO monitors (interval_seconds, deadline) VALUES (?, ?)",
@@ -37,7 +48,7 @@ def save_monitor(interval_seconds):
 
 def get_monitors():
 
-    connection = sqlite3.connect("heartbeat.db")
+    connection = sqlite3.connect(DB_PATH)
     connection.row_factory = sqlite3.Row
 
     monitors = connection.execute("SELECT * FROM monitors")
@@ -51,7 +62,7 @@ def get_monitors():
 
 def check_in(monitor_id):
 
-    connection = sqlite3.connect("heartbeat.db")
+    connection = sqlite3.connect(DB_PATH)
 
     cursor = connection.execute(
         "SELECT interval_seconds FROM monitors WHERE id = ?",
@@ -80,13 +91,10 @@ def check_in(monitor_id):
     return new_deadline
 
 def get_overdue_monitors():
-    now = datetime.now(timezone.utc).isofformat()
-
-def get_overdue_monitors():
 
     now = datetime.now(timezone.utc).isoformat()
 
-    connection = sqlite3.connect("heartbeat.db")
+    connection = sqlite3.connect(DB_PATH)
     connection.row_factory = sqlite3.Row
 
     cursor = connection.execute(
@@ -98,6 +106,26 @@ def get_overdue_monitors():
     connection.close()
 
     return [dict(row) for row in overdue]
+
+def record_alert(monitor_id, deadline):
+
+    connection = sqlite3.connect(DB_PATH)
+
+    cursor = connection.execute(
+        """
+        INSERT OR IGNORE INTO alerts (monitor_id, deadline)
+        VALUES (?, ?)
+        """,
+        (monitor_id, deadline)
+    )
+
+    connection.commit()
+
+    was_inserted = cursor.rowcount == 1
+
+    connection.close()
+
+    return was_inserted
 
 
 
